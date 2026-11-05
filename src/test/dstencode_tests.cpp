@@ -39,12 +39,12 @@ BOOST_AUTO_TEST_CASE(test_addresses) {
     const CTxDestination dstScript = ScriptID(uint160(hash));
     const CTxDestination dstScript32 = ScriptID(uint256(hash32)); // p2sh_32
 
-    std::string cashaddr_pubkey =
-        "bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a";
+        std::string cashaddr_pubkey =
+        "nvu:qpm2qsznhks23z7629mms6s4cwef74vcwvfnuv7p4d";
     std::string cashaddr_script =
-        "bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq";
+        "nvu:ppm2qsznhks23z7629mms6s4cwef74vcwv7kprezws";
     std::string cashaddr_script_32 =
-        "bitcoincash:pwqwzrf7z06m7nn58tkdjyxqfewanlhyrpxysack85xvf3mt0rv02l9dxc5uf"; // p2sh_32
+        "nvu:pwqwzrf7z06m7nn58tkdjyxqfewanlhyrpxysack85xvf3mt0rv02395w9qqv";
     std::string base58_pubkey = "1BpEi6DfDAUFd7GtittLSdBeYJvcoaVggu";
     std::string base58_script = "3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzC";
     std::string base58_script_32 = "BhUvhkQ6JwtVEdHguJo6M5BJYWn5ftW9vM9WaDDFcjrWiU2KMZ"; // p2sh_32

@@ -321,10 +321,18 @@ BOOST_AUTO_TEST_CASE(test_encode_address) {
         "bitcoincash:rpm2qsznhks23z7629mms6s4cwef74vcwv59yeyr7n",
         "bitcoincash:rr95sy3j9xwd2ap32xkykttr4cvcu7as4yl0zg2vc2",
         "bitcoincash:rqq3728yw0y47sqn6l2na30mcw6zm78dzqnkt7v7wd"};
+    std::vector<std::string> nvu_pubkey = {
+        "nvu:qpm2qsznhks23z7629mms6s4cwef74vcwvfnuv7p4d",
+        "nvu:qr95sy3j9xwd2ap32xkykttr4cvcu7as4yze6aswn5",
+        "nvu:qqq3728yw0y47sqn6l2na30mcw6zm78dzqwqntku9n"};
+    std::vector<std::string> nvu_script = {
+        "nvu:ppm2qsznhks23z7629mms6s4cwef74vcwv7kprezws",
+        "nvu:pr95sy3j9xwd2ap32xkykttr4cvcu7as4y4u8jhdgf",
+        "nvu:pqq3728yw0y47sqn6l2na30mcw6zm78dzqe9wy3l7w"};
 
     for (size_t i = 0; i < hash.size(); ++i) {
         const CTxDestination dstKey = CKeyID(uint160(hash[i]));
-        BOOST_CHECK_EQUAL(pubkey[i], EncodeCashAddr(dstKey, *params));
+        BOOST_CHECK_EQUAL(nvu_pubkey[i], EncodeCashAddr(dstKey, *params));
 
         CashAddrContent keyContent{PUBKEY_TYPE, hash[i]};
         BOOST_CHECK_EQUAL(pubkey[i], EncodeCashAddr("bitcoincash", keyContent));
@@ -335,7 +343,7 @@ BOOST_AUTO_TEST_CASE(test_encode_address) {
         BOOST_CHECK(tokenKeyContent.IsTokenAwareType());
 
         const CTxDestination dstScript = ScriptID(uint160(hash[i]));
-        BOOST_CHECK_EQUAL(script[i], EncodeCashAddr(dstScript, *params));
+        BOOST_CHECK_EQUAL(nvu_script[i], EncodeCashAddr(dstScript, *params));
 
         CashAddrContent scriptContent{SCRIPT_TYPE, hash[i]};
         BOOST_CHECK_EQUAL(script[i], EncodeCashAddr("bitcoincash", scriptContent));
