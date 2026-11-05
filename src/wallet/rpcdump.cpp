@@ -284,7 +284,7 @@ UniValue importaddress(const Config &config, const JSONRPCRequest &request) {
             RPCHelpMan{"importaddress",
                 "\nAdds an address or script (in hex) that can be watched as if it were in your wallet but cannot be used to spend. Requires a new wallet backup.\n",
                 {
-                    {"address", RPCArg::Type::STR, /* opt */ false, /* default_val */ "", "The Bitcoin Cash address (or hex-encoded script)"},
+                    {"address", RPCArg::Type::STR, /* opt */ false, /* default_val */ "", "The NVU address (or hex-encoded script)"},
                     {"label", RPCArg::Type::STR, /* opt */ true, /* default_val */ "\"\"", "An optional label"},
                     {"rescan", RPCArg::Type::BOOL, /* opt */ true, /* default_val */ "true", "Rescan the wallet for transactions"},
                     {"p2sh", RPCArg::Type::BOOL, /* opt */ true, /* default_val */ "false", "Add the P2SH version of the script as well"},
@@ -358,7 +358,7 @@ UniValue importaddress(const Config &config, const JSONRPCRequest &request) {
             ImportScript(*pwallet, CScript(data.begin(), data.end()), strLabel, fP2SH);
         } else {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY,
-                               "Invalid Bitcoin Cash address or script");
+                               "Invalid NVU address or script");
         }
     }
     if (fRescan) {
@@ -789,7 +789,7 @@ UniValue dumpprivkey(const Config &config, const JSONRPCRequest &request) {
                 "\nReveals the private key corresponding to 'address'.\n"
                 "Then the importprivkey can be used with this output\n",
                 {
-                    {"address", RPCArg::Type::STR, /* opt */ false, /* default_val */ "", "The Bitcoin Cash address for the private key"},
+                    {"address", RPCArg::Type::STR, /* opt */ false, /* default_val */ "", "The NVU address for the private key"},
                 }}
                 .ToString() +
             "\nResult:\n"
@@ -810,7 +810,7 @@ UniValue dumpprivkey(const Config &config, const JSONRPCRequest &request) {
         DecodeDestination(strAddress, config.GetChainParams());
     if (!IsValidDestination(dest)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY,
-                           "Invalid Bitcoin Cash address");
+                           "Invalid NVU address");
     }
     auto keyid = GetKeyForDestination(*pwallet, dest);
     if (keyid.IsNull()) {

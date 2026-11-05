@@ -98,7 +98,7 @@ static bool AppInit(int argc, char *argv[]) {
         if (gArgs.IsArgSet("-version")) {
             strUsage += FormatParagraph(LicenseInfo());
         } else {
-            strUsage += "\nUsage:  bitcoind [options]                     "
+            strUsage += "\nUsage:  nvund [options]                        "
                         "Start " PACKAGE_NAME " Daemon\n";
 
             strUsage += "\n" + gArgs.GetHelpMessage();
@@ -178,7 +178,7 @@ static bool AppInit(int argc, char *argv[]) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-            fprintf(stdout, "Bitcoin server starting\n");
+            fprintf(stdout, "NVUN server starting\n");
 
             // Daemonize
             if (daemon(1, 0)) {

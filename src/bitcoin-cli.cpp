@@ -168,7 +168,7 @@ static int AppInitRPC(int argc, char *argv[]) {
             PACKAGE_NAME " RPC client version " + FormatFullVersion() + "\n";
         if (!gArgs.IsArgSet("-version")) {
             strUsage += "\n"
-                        "Usage:  bitcoin-cli [options] <command> [params]  "
+                        "Usage:  nvu-cli [options] <command> [params]      "
                         "Send command to " PACKAGE_NAME "\n"
                         "or:     bitcoin-cli [options] -named <command> "
                         "[name=value]...  Send command to " PACKAGE_NAME

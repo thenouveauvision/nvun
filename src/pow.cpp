@@ -354,6 +354,14 @@ uint32_t GetNextWorkRequired(const CBlockIndex *pindexPrev,
         return pindexPrev->nBits;
     }
 
+    // If the next block is the configured ASERT anchor, require the
+    // anchor target explicitly. For NVU mainnet this makes block 1 use
+    // the 5 TH/s launch target instead of inheriting genesis difficulty.
+    if (params.asertAnchorParams &&
+        pindexPrev->nHeight + 1 == params.asertAnchorParams->nHeight) {
+        return params.asertAnchorParams->nBits;
+    }
+
     if (IsAxionEnabled(params, pindexPrev)) {
         const CBlockIndex *panchorBlock = nullptr;
         if (!params.asertAnchorParams) {

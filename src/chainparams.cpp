@@ -82,18 +82,14 @@ public:
     CMainParams() {
         strNetworkID = CBaseChainParams::MAIN;
         consensus.nSubsidyHalvingInterval = 210000;
-        // 00000000000000ce80a7e057163a4db1d5ad7b20fb6f598c9597b9665c8fb0d4 -
-        // April 1, 2012
-        consensus.BIP16Height = 173805;
-        consensus.BIP34Height = 227931;
+        // NVU launches with the modern Bitcoin-era consensus rules active.
+        consensus.BIP16Height = 0;
+        consensus.BIP34Height = 0;
         consensus.BIP34Hash = BlockHash::fromHex(
-            "000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
-        // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
-        consensus.BIP65Height = 388381;
-        // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
-        consensus.BIP66Height = 363725;
-        // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
-        consensus.CSVHeight = 419328;
+            "000000003ab967d9379a450afdb1f7e849434ff7bc48d99a4efef91be531ae55");
+        consensus.BIP65Height = 0;
+        consensus.BIP66Height = 0;
+        consensus.CSVHeight = 0;
         consensus.powLimit = uint256S(
             "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         // two weeks
@@ -107,51 +103,30 @@ public:
         // Two days
         consensus.nASERTHalfLife = 2 * 24 * 60 * 60;
 
-        // The best chain should have at least this much work.
-        consensus.nMinimumChainWork =
-            ChainParamsConstants::MAINNET_MINIMUM_CHAIN_WORK;
+        // NVU launches as a new chain with no inherited accumulated work.
+        consensus.nMinimumChainWork = uint256{};
 
-        // By default assume that the signatures in ancestors of this block are
-        // valid.
-        consensus.defaultAssumeValid =
-            ChainParamsConstants::MAINNET_DEFAULT_ASSUME_VALID;
+        // Do not skip historical signature validation on the new NVU chain.
+        consensus.defaultAssumeValid = BlockHash{};
 
-        // August 1, 2017 hard fork
-        consensus.uahfHeight = 478558;
+        // NVU launches with the current inherited BCH consensus rules active.
+        // Height zero means the rules apply when validating Block 1.
+        consensus.uahfHeight = 0;
+        consensus.daaHeight = 0;
+        consensus.magneticAnomalyHeight = 0;
+        consensus.gravitonHeight = 0;
+        consensus.phononHeight = 0;
 
-        // November 13, 2017 hard fork
-        consensus.daaHeight = 504031;
+        // ASERT activation is controlled by NVU's explicit Block 1 anchor.
+        consensus.axionActivationTime = 0;
 
-        // November 15, 2018 hard fork
-        consensus.magneticAnomalyHeight = 556766;
+        // Upgrade 8 is already always active in this BCHN codebase.
+        consensus.upgrade9Height = 0;
+        consensus.upgrade10Height = 0;
+        consensus.upgrade11Height = 0;
+        consensus.upgrade12Height = 0;
 
-        // November 15, 2019 protocol upgrade
-        consensus.gravitonHeight = 609135;
-
-        // May 15, 2020 12:00:00 UTC protocol upgrade
-        consensus.phononHeight = 635258;
-
-        // Nov 15, 2020 12:00:00 UTC protocol upgrade
-        consensus.axionActivationTime = 1605441600;
-
-        // May 15, 2021 12:00:00 UTC protocol upgrade was 1621080000, but since this upgrade was for relay rules only,
-        // we do not track this time (since it does not apply at all to the blockchain itself).
-
-        // May 15, 2022 12:00:00 UTC protocol upgrade (upgrade8) height was 740237
-
-        // May 15, 2023 12:00:00 UTC protocol upgrade (this is one less than the upgrade block itself)
-        consensus.upgrade9Height = 792772;
-
-        // May 15, 2024 12:00:00 UTC protocol upgrade (this is one less than the upgrade block itself)
-        consensus.upgrade10Height = 845890;
-
-        // May 15, 2025 12:00:00 UTC protocol upgrade (this is one less than the first block mined under new rules)
-        consensus.upgrade11Height = 898373;
-
-        // May 15, 2026 12:00:00 UTC protocol upgrade (this is one less than the first block mined under new rules)
-        consensus.upgrade12Height = 951144; /* first block with pindex->GetMedianTimePast() >= 1778846400 */
-
-        // May 15, 2027 12:00:00 UTC tentative protocol upgrade
+        // Keep the tentative May 15, 2027 upgrade on its inherited schedule.
         consensus.upgrade2027ActivationTime = 1810382400;
 
         // Default limit for block size (in bytes)
@@ -164,11 +139,12 @@ public:
                && consensus.nDefaultGeneratedBlockSizePercent <= 100.0);
         assert(consensus.GetDefaultGeneratedBlockSizeBytes() <= consensus.nDefaultConsensusBlockSize);
 
-        // Anchor params: Note that the block after this height *must* also be checkpointed below.
+        // NVU block 1 is the ASERT anchor.
+        // Its parent is the genesis block created at timestamp 1793122760.
         consensus.asertAnchorParams = Consensus::Params::ASERTAnchor{
-            661647,       // anchor block height
-            0x1804dafe,   // anchor block nBits
-            1605447844,   // anchor block previous block timestamp
+            1,            // anchor block height
+            0x1a1804ea,   // launch target: approximately 5 TH/s at 600 seconds
+            1793122760,   // genesis block timestamp
         };
 
         // ABLA config -- upgrade 10 adjustable block limit algorithm
@@ -183,28 +159,42 @@ public:
          * normal data. The characters are rarely used upper ASCII, not valid as
          * UTF-8, and produce a large 32-bit integer with any alignment.
          */
-        diskMagic[0] = 0xf9;
-        diskMagic[1] = 0xbe;
-        diskMagic[2] = 0xb4;
-        diskMagic[3] = 0xd9;
-        netMagic[0] = 0xe3;
-        netMagic[1] = 0xe1;
-        netMagic[2] = 0xf3;
-        netMagic[3] = 0xe8;
-        nDefaultPort = 8333;
+        diskMagic[0] = 0x29;
+        diskMagic[1] = 0xc7;
+        diskMagic[2] = 0x09;
+        diskMagic[3] = 0x6d;
+        netMagic[0] = 0x71;
+        netMagic[1] = 0xa2;
+        netMagic[2] = 0xa8;
+        netMagic[3] = 0xc0;
+        nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
         m_assumed_blockchain_size = 250;    // 207G
         m_assumed_chain_state_size = 6;     // 4.2G
 
-        genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1,
+        const char *nvuGenesisTimestamp =
+            "Nouveau-Vision Unit 27/Oct/2026 Small miners deserve a meaningful place in SHA-256";
+        const CScript nvuGenesisOutputScript =
+            CScript() << ParseHex("046e1a1ccb54e5bf7dc6827d9a339ac748ff20f389124d326de51d50cc24dae8"
+                                  "4722fcda13f2a0ddddc75402e06f39b5415577ef9d47a7d900cf4156a9109e9d"
+                                  "9d")
+                      << OP_CHECKSIG;
+
+        genesis = CreateGenesisBlock(nvuGenesisTimestamp,
+                                     nvuGenesisOutputScript,
+                                     1793122760,
+                                     3464907508,
+                                     0x1d00ffff,
+                                     1,
                                      50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
+
         assert(consensus.hashGenesisBlock ==
-               uint256S("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1"
-                        "b60a8ce26f"));
+               uint256S("000000003ab967d9379a450afdb1f7e849434ff7bc48d99a4efe"
+                        "f91be531ae55"));
         assert(genesis.hashMerkleRoot ==
-               uint256S("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b"
-                        "7afdeda33b"));
+               uint256S("5d2dfd9f027626e2ce0e056d35d3e82e49d9b116c9903c761c"
+                        "813f931b874d73"));
 
         vSeeds.emplace_back("seed.flowee.cash");
         // Note that of those which support the service bits prefix, most only
@@ -225,14 +215,18 @@ public:
         // Jason Dreyzehner
         vSeeds.emplace_back("bch.bitjson.com");
 
+        // NVU launches without inherited BCH DNS seeds.
+        // Add dedicated NVU seed nodes after the network is established.
+        vSeeds.clear();
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<uint8_t>(1, 0);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<uint8_t>(1, 5);
         base58Prefixes[SECRET_KEY] = std::vector<uint8_t>(1, 128);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
-        cashaddrPrefix = "bitcoincash";
+        cashaddrPrefix = "nvu";
 
-        vFixedSeeds.assign(std::begin(pnSeed6_main), std::end(pnSeed6_main));
+        vFixedSeeds.clear();
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -240,99 +234,15 @@ public:
 
         checkpointData = {
             /* .mapCheckpoints = */ {
-                {11111, BlockHash::fromHex("0000000069e244f73d78e8fd29ba2fd2ed6"
-                                           "18bd6fa2ee92559f542fdb26e7c1d")},
-                {33333, BlockHash::fromHex("000000002dd5588a74784eaa7ab0507a18a"
-                                           "d16a236e7b1ce69f00d7ddfb5d0a6")},
-                {74000, BlockHash::fromHex("0000000000573993a3c9e41ce34471c079d"
-                                           "cf5f52a0e824a81e7f953b8661a20")},
-                {105000, BlockHash::fromHex("00000000000291ce28027faea320c8d2b0"
-                                            "54b2e0fe44a773f3eefb151d6bdc97")},
-                {134444, BlockHash::fromHex("00000000000005b12ffd4cd315cd34ffd4"
-                                            "a594f430ac814c91184a0d42d2b0fe")},
-                {168000, BlockHash::fromHex("000000000000099e61ea72015e79632f21"
-                                            "6fe6cb33d7899acb35b75c8303b763")},
-                {193000, BlockHash::fromHex("000000000000059f452a5f7340de6682a9"
-                                            "77387c17010ff6e6c3bd83ca8b1317")},
-                {210000, BlockHash::fromHex("000000000000048b95347e83192f69cf03"
-                                            "66076336c639f9b7228e9ba171342e")},
-                {216116, BlockHash::fromHex("00000000000001b4f4b433e81ee46494af"
-                                            "945cf96014816a4e2370f11b23df4e")},
-                {225430, BlockHash::fromHex("00000000000001c108384350f74090433e"
-                                            "7fcf79a606b8e797f065b130575932")},
-                {250000, BlockHash::fromHex("000000000000003887df1f29024b06fc22"
-                                            "00b55f8af8f35453d7be294df2d214")},
-                {279000, BlockHash::fromHex("0000000000000001ae8c72a0b0c301f67e"
-                                            "3afca10e819efa9041e458e9bd7e40")},
-                {295000, BlockHash::fromHex("00000000000000004d9b4ef50f0f9d686f"
-                                            "d69db2e03af35a100370c64632a983")},
-                // UAHF fork block.
-                {478559, BlockHash::fromHex("000000000000000000651ef99cb9fcbe0d"
-                                            "adde1d424bd9f15ff20136191a5eec")},
-                // Nov, 13 DAA activation block.
-                {504032, BlockHash::fromHex("00000000000000000343e9875012f20625"
-                                            "54c8752929892c82a0c0743ac7dcfd")},
-                // Monolith activation.
-                {530359, BlockHash::fromHex("0000000000000000011ada8bd08f46074f"
-                                            "44a8f155396f43e38acf9501c49103")},
-                // Magnetic anomaly activation.
-                {556767, BlockHash::fromHex("0000000000000000004626ff6e3b936941"
-                                            "d341c5932ece4357eeccac44e6d56c")},
-                // Great wall activation.
-                {582680, BlockHash::fromHex("000000000000000001b4b8e36aec7d4f96"
-                                            "71a47872cb9a74dc16ca398c7dcc18")},
-                // Graviton activation.
-                {609136, BlockHash::fromHex("000000000000000000b48bb207faac5ac6"
-                                            "55c313e41ac909322eaa694f5bc5b1")},
-                // Phonon activation.
-                {635259, BlockHash::fromHex("00000000000000000033dfef1fc2d6a5d5"
-                                            "520b078c55193a9bf498c5b27530f7")},
-                // Axion activation.
-                {661648, BlockHash::fromHex("0000000000000000029e471c41818d24b8"
-                                            "b74c911071c4ef0b4a0509f9b5a8ce")},
-                {682900, BlockHash::fromHex("0000000000000000018b0a60a00ca53b69"
-                                            "b213a8515e5eedbf8a207f0355fe42")},
-
-                // Upgrade 7 ("tachyon") era (actual activation block was 688094)
-                {699484, BlockHash::fromHex("0000000000000000030192242425926218184a609a63efee615b7586d7f3972b")},
-                {714881, BlockHash::fromHex("000000000000000004cd628ee64c058183e780bc31143ff00680ea8af51fa0ff")},
-
-                // Upgrade 8; May 15, 2022 (MTP time >= 1652616000), first upgrade block: 740238
-                {740238, BlockHash::fromHex("000000000000000002afc6fbd302f01f8cf4533f4b45207abc61d9f4297bf969")},
-                {741245, BlockHash::fromHex("000000000000000001c46d1d0f35df726bfb3e84cdc396d9edd9e2f8414191cd")},
-                {768220, BlockHash::fromHex("0000000000000000012f9d67fc9304253bdf204b65782816cbbc64913398e25b")},
-                {773784, BlockHash::fromHex("0000000000000000045cc0dbdd5cbbb86f7f63596e699ac5a11b2d41c65c6993")},
-
-                // Upgrade 9; May 15, 2023 (MTP time >= 1684152000), first upgrade block: 792773
-                {792773, BlockHash::fromHex("000000000000000002fc0cdadaef1857bbd2936d37ea94f80ba3db4a5e8353e8")},
-
-                // Upgrade 10; May 15, 2024 (MTP time >= 1715774400), first block after upgrade: 845891
-                {845891, BlockHash::fromHex("0000000000000000017012058e7b67032926f1f20f96d1a2cd66abff9aaf8244")},
-                {853417, BlockHash::fromHex("000000000000000001c97a4c91c7a85d5f56a7ecd119f21abffdc6987a1be792")},
-                {873239, BlockHash::fromHex("000000000000000000e28c75f4b398b3ac410755d18ef9314b770c3d08cb130e")},
-                {878660, BlockHash::fromHex("000000000000000000c166d5661c13195722ae6fbee90f0ab2407ae60b71c2e6")},
-
-                // Upgrade 11; May 15, 2025 (MTP time >= 1747310400), first block mined with upgrade rules: 898374
-                {898374, BlockHash::fromHex("00000000000000000157a0a3dcdc80f1acd809648d238c1e893b26247091b3b4")},
-                {901000, BlockHash::fromHex("000000000000000001eda4b93cfe9bc790906f2358fc5643ff335da5e7bbae5d")},
-                {932228, BlockHash::fromHex("0000000000000000005a48a20e13f038be389952014373478b6a6a90d40e4680")},
-
-                // Upgrade 12; May 15, 2026 (MTP time >= 1778846400), first block mined with upgrade rules: 951145
-                {951145, BlockHash::fromHex("000000000000000000f64dbed68370486f945097ba90b17e30d7bf5c43df7a60")},
-                {960710, BlockHash::fromHex("00000000000000000275ee55c04aa109347c9ee0b5bb4617837df3044f7e1be5")},
-                {970892, BlockHash::fromHex("000000000000000000e76270e57f4ebbd2b282db46a1695984935126c0a68cd8")},
+                {0, BlockHash::fromHex(
+                    "000000003ab967d9379a450afdb1f7e849434ff7bc48d99a4efef91be531ae55")},
             }};
 
-        // Data as of block 000000000000000000dd27d2a8bc6ecad19b915eef50a707e7388e0ca1551038
-        // (height 970905).
+        // NVU chain statistics begin with the genesis transaction.
         chainTxData = ChainTxData{
-            // UNIX timestamp of last known number of transactions.
-            1790801397,
-            // Total number of transactions between genesis and that timestamp
-            // (the tx=... number in the ChainStateFlushed debug.log lines)
-            417337845,
-            // Estimated number of transactions per second after that timestamp.
-            0.1424,
+            1793122760, // Genesis block UNIX timestamp.
+            1,          // Genesis coinbase transaction.
+            0.0,        // No established transaction rate yet.
         };
     }
 };

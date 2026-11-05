@@ -277,7 +277,7 @@ static UniValue getrawtransaction(const Config &config,
             "         \"asm\" : \"str\",              (string) The asm\n"
             "         \"hex\" : \"str\",              (string) The hex\n"
             "         \"type\" : \"str\",             (string) The type (one of: nonstandard, pubkey, pubkeyhash, scripthash, multisig, nulldata)\n"
-            "         \"address\" : \"str\",          (string, optional) The Bitcoin Cash address (only if well-defined address exists)\n"
+            "         \"address\" : \"str\",          (string, optional) The NVU address (only if well-defined address exists)\n"
             "         \"byteCodePattern\" : {...}   (json object, optional) Only for patterns == true; byte code pattern information\n"
             "       },\n"
             "       \"tokenData\" : {               (json object, optional) CashToken data (verbosity level 2, only if the input contained a token)\n"
@@ -302,7 +302,7 @@ static UniValue getrawtransaction(const Config &config,
             "         \"reqSigs\" : n,              (numeric) The required sigs\n"
             "         \"type\" : \"pubkeyhash\",      (string) The type, eg 'pubkeyhash'\n"
             "         \"addresses\" : [             (json array of string)\n"
-            "           \"address\"                 (string) Bitcoin Cash address\n"
+            "           \"address\"                 (string) NVU address\n"
             "           ,...\n"
             "         ],\n"
             "        \"byteCodePattern\" : {...}    (json object, optional) Only for patterns == true; byte code pattern information\n"
@@ -708,7 +708,7 @@ CMutableTransaction ConstructTransaction(const CChainParams &params,
             CTxDestination destination = DecodeDestination(entry.first, params);
             if (!IsValidDestination(destination)) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY,
-                                   std::string("Invalid Bitcoin Cash address: ") +
+                                   std::string("Invalid NVU address: ") +
                                        entry.first);
             }
 
@@ -763,7 +763,7 @@ RPCArg GetAlternateAddressObjectOutputArgSpec(bool optional) {
     return
     {"", RPCArg::Type::OBJ, /* opt */ optional, /* default_val */ "", "",
         std::vector<RPCArg>{{
-            {"address", RPCArg::Type::OBJ, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the Bitcoin Cash address, the value is a JSON object",
+            {"address", RPCArg::Type::OBJ, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the NVU address, the value is a JSON object",
                 std::vector<RPCArg>{{
                     {"amount", RPCArg::Type::AMOUNT, /* opt */ false, /* default_val */ "",  "The amount in " + CURRENCY_UNIT},
                     GetTokenDataArgSpec(),
@@ -802,7 +802,7 @@ static UniValue createrawtransaction(const Config &config,
                         {
                             {"", RPCArg::Type::OBJ, /* opt */ true, /* default_val */ "", "",
                                 {
-                                    {"address", RPCArg::Type::AMOUNT, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the Bitcoin Cash address, the value (float or string) is the amount in " + CURRENCY_UNIT},
+                                    {"address", RPCArg::Type::AMOUNT, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the NVU address, the value (float or string) is the amount in " + CURRENCY_UNIT},
                                 },
                                 },
                             GetAlternateAddressObjectOutputArgSpec(),
@@ -882,7 +882,7 @@ static UniValue decoderawtransaction(const Config &config,
             "'pubkeyhash'\n"
             "         \"addresses\" : [           (json array of string)\n"
             "           \"12tvKAXCxZjSmdNbao16dKXC8tRWfcF5oc\"   (string) "
-            "Bitcoin Cash address\n"
+            "NVU address\n"
             "           ,...\n"
             "         ]\n"
             "       },\n"
@@ -931,7 +931,7 @@ static UniValue decodescript(const Config &config,
             "  \"type\":\"type\", (string) The output type\n"
             "  \"reqSigs\": n,    (numeric) The required signatures\n"
             "  \"addresses\": [   (json array of string)\n"
-            "     \"address\"     (string) Bitcoin Cash address\n"
+            "     \"address\"     (string) NVU address\n"
             "     ,...\n"
             "  ],\n"
             "  \"p2sh\",\"address\" (string) address of P2SH script wrapping "
@@ -1592,7 +1592,7 @@ static UniValue decodepsbt(const Config &config,
             "          \"hex\" : \"hex\",            (string) The hex\n"
             "          \"type\" : \"pubkeyhash\",    (string) The type, eg "
             "'pubkeyhash'\n"
-            "          \"address\" : \"address\"     (string) Bitcoin Cash address "
+            "          \"address\" : \"address\"     (string) NVU address "
             "if there is one\n"
             "        },\n"
             "        \"tokenData\" : {           (json object optional)\n"
@@ -2014,7 +2014,7 @@ static UniValue createpsbt(const Config &config,
                         {
                             {"", RPCArg::Type::OBJ, /* opt */ true, /* default_val */ "", "",
                                 {
-                                    {"address", RPCArg::Type::AMOUNT, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the Bitcoin Cash address, the value (float or string) is the amount in " + CURRENCY_UNIT},
+                                    {"address", RPCArg::Type::AMOUNT, /* opt */ false, /* default_val */ "", "A key-value pair. The key (string) is the NVU address, the value (float or string) is the amount in " + CURRENCY_UNIT},
                                 },
                                 },
                             GetAlternateAddressObjectOutputArgSpec(),

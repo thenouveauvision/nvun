@@ -146,7 +146,7 @@ static int AppInitRawTx(int argc, char *argv[], Config &config) {
         std::string strUsage =
             PACKAGE_NAME " bitcoin-tx utility version " + FormatFullVersion() +
             "\n\n" +
-            "Usage:  bitcoin-tx [options] <hex-tx> [commands]  Update "
+            "Usage:  nvu-tx [options] <hex-tx> [commands]      Update "
             "hex-encoded bitcoin transaction\n" +
             "or:     bitcoin-tx [options] -create [commands]   Create "
             "hex-encoded bitcoin transaction\n" +

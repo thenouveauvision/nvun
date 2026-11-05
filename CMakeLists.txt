@@ -10,12 +10,12 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE
 
 project(bitcoin-cash-node
 	VERSION 29.2.1
-	DESCRIPTION "Bitcoin Cash Node is a full node implementation of the Bitcoin Cash protocol."
-	HOMEPAGE_URL "https://www.bitcoincashnode.org"
+	DESCRIPTION "Nouveau-Vision Unit Node is a full node implementation of the Nouveau-Vision protocol."
+	HOMEPAGE_URL "https://nvu.us"
 )
 
 # Package information
-set(PACKAGE_NAME "Bitcoin Cash Node")
+set(PACKAGE_NAME "Nouveau-Vision Unit Node")
 
 # Copyright
 set(COPYRIGHT_YEAR 2026)

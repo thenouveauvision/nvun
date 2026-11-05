@@ -94,7 +94,7 @@
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
 
-const char *const BITCOIN_CONF_FILENAME = "bitcoin.conf";
+const char *const BITCOIN_CONF_FILENAME = "nvu.conf";
 
 ArgsManager gArgs;
 
@@ -812,7 +812,7 @@ fs::path GetDefaultDataDir() {
 // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Nouveau-Vision Unit";
 #else
     fs::path pathRet;
     char *pszHome = getenv("HOME");
@@ -823,10 +823,10 @@ fs::path GetDefaultDataDir() {
     }
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/Nouveau-Vision Unit";
 #else
     // Unix
-    return pathRet / ".bitcoin";
+    return pathRet / ".nvu";
 #endif
 #endif
 }

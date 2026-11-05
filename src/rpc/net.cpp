@@ -532,7 +532,7 @@ static UniValue getnetworkinfo(const Config &config, const JSONRPCRequest &reque
             RPCResult{
                 "{\n"
                 "  \"version\": xxxxx,                             (numeric) the server version\n"
-                "  \"subversion\": \"/Bitcoin Cash Node:x.x.x/\",    (string) the server subversion string\n"
+                "  \"subversion\": \"/NVUN:x.x.x/\",    (string) the server subversion string\n"
                 "  \"protocolversion\": xxxxx,                     (numeric) the protocol version\n"
                 "  \"localservices\": \"xxxxxxxxxxxxxxxx\",          (string) the services we offer to the network\n"
                 "  \"localservicesnames\": [                       (array) the services we offer to the network, in human-readable form\n"
