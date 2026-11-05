@@ -126,8 +126,11 @@ public:
         consensus.upgrade11Height = 0;
         consensus.upgrade12Height = 0;
 
-        // Keep the tentative May 15, 2027 upgrade on its inherited schedule.
-        consensus.upgrade2027ActivationTime = 1810382400;
+        // NVU does not automatically inherit future BCH upgrade schedules.
+        // Future NVU consensus upgrades require an explicit NVU specification,
+        // release, test cycle, and deliberate activation mechanism.
+        // Zero also disables the inherited software-expiry date for mainnet.
+        consensus.upgrade2027ActivationTime = 0;
 
         // Default limit for block size (in bytes)
         consensus.nDefaultConsensusBlockSize = DEFAULT_CONSENSUS_BLOCK_SIZE;

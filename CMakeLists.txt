@@ -8,8 +8,8 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE
 	"${CMAKE_SOURCE_DIR}/cmake/modules/OverrideInitFlags.cmake"
 )
 
-project(bitcoin-cash-node
-	VERSION 29.2.1
+project(nouveau-vision-node
+	VERSION 1.0.0
 	DESCRIPTION "Nouveau-Vision Unit Node is a full node implementation of the Nouveau-Vision protocol."
 	HOMEPAGE_URL "https://nvu.us"
 )

@@ -543,10 +543,9 @@ void SetupServerArgs() {
     gArgs.AddArg(
         "-expire",
         strprintf(
-            "Limit functionality of this node after the tentative upgrade "
-            "date of May 15, 2027 (date can be set with "
-            "-upgrade2027activationtime=<n>). To avoid inadvertently using the "
-            "wrong chain, the RPC interface will be disabled at that time. "
+            "Limit functionality of this node after a configured software "
+            "expiry time (set with -upgrade2027activationtime=<n>). "
+            "NVU mainnet has no scheduled software expiry by default. "
             "(default: %d)", software_outdated::DEFAULT_EXPIRE),
         ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg(
@@ -2250,8 +2249,9 @@ bool AppInitMain(Config &config, RPCServer &rpcServer,
      * Set up the "software outdated" mechanism.
      */
     if (gArgs.GetBoolArg("-expire", software_outdated::DEFAULT_EXPIRE)) {
-        // The software outdated warning will start to happen 30 days before May 15th, 2027;
-        // on -chipnet this date is 30 days before Nov. 15th, 2026.
+        // The software-outdated mechanism is active only when the selected
+        // network defines a nonzero expiry/upgrade time. NVU mainnet defines
+        // no automatic future-upgrade expiry.
         software_outdated::nTime = gArgs.GetArg("-upgrade2027activationtime",
                                                 chainparams.GetConsensus().upgrade2027ActivationTime);
         if (software_outdated::nTime > 0) {
