@@ -144,12 +144,12 @@ static int AppInitRawTx(int argc, char *argv[], Config &config) {
     if (argc < 2 || HelpRequested(gArgs)) {
         // First part of help message is specific to this utility
         std::string strUsage =
-            PACKAGE_NAME " bitcoin-tx utility version " + FormatFullVersion() +
+            PACKAGE_NAME " transaction utility version " + FormatFullVersion() +
             "\n\n" +
             "Usage:  nvu-tx [options] <hex-tx> [commands]      Update "
-            "hex-encoded bitcoin transaction\n" +
-            "or:     bitcoin-tx [options] -create [commands]   Create "
-            "hex-encoded bitcoin transaction\n" +
+            "hex-encoded NVU transaction\n" +
+            "or:     nvu-tx [options] -create [commands]       Create "
+            "hex-encoded NVU transaction\n" +
             "\n";
         strUsage += gArgs.GetHelpMessage();
         fprintf(stdout, "%s", strUsage.c_str());

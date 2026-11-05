@@ -36,12 +36,13 @@ const std::function<std::string(const char *)> G_TRANSLATION_FUN = nullptr;
  *
  * \section intro_sec Introduction
  *
- * This is the developer documentation of Bitcoin Cash Node
- * (https://www.bitcoincashnode.org/). Bitcoin Cash Node is a client for the
- * digital currency called Bitcoin Cash (https://www.bitcoincash.org/), which
- * enables instant payments to anyone, anywhere in the world. Bitcoin Cash uses
- * peer-to-peer technology to operate with no central authority: managing
- * transactions and issuing money are carried out collectively by the network.
+ * This is the developer documentation of Nouveau-Vision Unit Node (NVUN).
+ * NVUN is the full-node implementation of the Nouveau-Vision Unit (NVU)
+ * peer-to-peer digital currency network. NVUN is derived from Bitcoin Cash
+ * Node and retains upstream attribution under the MIT license.
+ * Nouveau-Vision Unit uses peer-to-peer technology to operate without a
+ * central authority; transactions and network consensus are maintained
+ * collectively by participating nodes.
  *
  * The software is a community-driven open source project, released under the
  * MIT license.

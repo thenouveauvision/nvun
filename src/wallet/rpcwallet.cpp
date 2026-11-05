@@ -2005,7 +2005,7 @@ static UniValue gettransaction(const Config &config,
             "for unconfirmed transactions not in the mempool\n"
             "  \"details\" : [\n"
             "    {\n"
-            "      \"address\" : \"address\",          (string) The Bitcoin Cash "
+            "      \"address\" : \"address\",          (string) The NVU "
             "address involved in the transaction\n"
             "      \"category\" : \"send|receive\",    (string) The category, "
             "either 'send' or 'receive'\n"
