@@ -261,6 +261,18 @@ BOOST_AUTO_TEST_CASE(isupgrade2027enabled) {
     const auto activation = gArgs.GetArg("-upgrade2027activationtime", params.upgrade2027ActivationTime);
     const auto origMockTime = GetMockTime();
     Defer d([origMockTime] { SetMockTime(origMockTime); });
+    if (activation <= 0) {
+        BOOST_CHECK(!IsUpgrade2027Enabled(params, nullptr));
+
+        std::array<CBlockIndex, 12> blocks;
+        for (size_t i = 1; i < blocks.size(); ++i) {
+            blocks[i].pprev = &blocks[i - 1];
+        }
+
+        SetMTP(blocks, 2'000'000'000);
+        BOOST_CHECK(!IsUpgrade2027Enabled(params, &blocks.back()));
+        return;
+    }
     SetMockTime(activation - 1000000);
 
     BOOST_CHECK(!IsUpgrade2027Enabled(params, nullptr));
@@ -288,7 +300,15 @@ BOOST_AUTO_TEST_CASE(test_upgrade2027_activation_block_tracking) {
     CBlockIndex * const origTip = ::ChainActive().Tip();
     const auto pparams = CreateChainParams(CBaseChainParams::MAIN);
     const Consensus::Params &params = pparams->GetConsensus();
-    const auto activation = gArgs.GetArg("-upgrade2027activationtime", params.upgrade2027ActivationTime);
+    const auto activation =
+        gArgs.GetArg("-upgrade2027activationtime",
+                     params.upgrade2027ActivationTime);
+
+    if (activation <= 0) {
+        BOOST_CHECK(!IsUpgrade2027Enabled(params, nullptr));
+        return;
+    }
+
     const auto origMockTime = GetMockTime();
     SetMockTime(activation - 1000000);
     Defer d([&] {

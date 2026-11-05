@@ -168,8 +168,18 @@ bool IsUpgrade12Enabled(const Consensus::Params &params, const CBlockIndex *pind
 }
 
 // Upgrade 2027
-static bool IsUpgrade2027Enabled(const Consensus::Params &params, const int64_t nMedianTimePast) {
-    return nMedianTimePast >= gArgs.GetArg("-upgrade2027activationtime", params.upgrade2027ActivationTime);
+static bool IsUpgrade2027Enabled(const Consensus::Params &params,
+                                 const int64_t nMedianTimePast) {
+    const int64_t activationTime =
+        gArgs.GetArg("-upgrade2027activationtime",
+                     params.upgrade2027ActivationTime);
+
+    // A nonpositive activation time means no upgrade is scheduled.
+    if (activationTime <= 0) {
+        return false;
+    }
+
+    return nMedianTimePast >= activationTime;
 }
 
 bool IsUpgrade2027Enabled(const Consensus::Params &params, const CBlockIndex *pindexPrev) {
