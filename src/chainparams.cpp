@@ -199,28 +199,13 @@ public:
                uint256S("5d2dfd9f027626e2ce0e056d35d3e82e49d9b116c9903c761c"
                         "813f931b874d73"));
 
-        vSeeds.emplace_back("seed.flowee.cash");
-        // Note that of those which support the service bits prefix, most only
-        // support a subset of possible options. This is fine at runtime as
-        // we'll fall back to using them as an addfetch if they don't support the
-        // service bits we want, but we should get them updated to support all
-        // service bits wanted by any release ASAP to avoid it where possible.
-        // bitcoinforks seeders
-        vSeeds.emplace_back("seed-bch.bitcoinforks.org");
-        // BU backed seeder
-        vSeeds.emplace_back("btccash-seeder.bitcoinunlimited.info");
-        // BCHD
-        vSeeds.emplace_back("seed.bchd.cash");
-        // Loping.net
-        vSeeds.emplace_back("seed.bch.loping.net");
-        // C3 Soft (NilacTheGrim)
-        vSeeds.emplace_back("bchseed.c3-soft.com");
-        // Jason Dreyzehner
-        vSeeds.emplace_back("bch.bitjson.com");
-
-        // NVU launches without inherited BCH DNS seeds.
-        // Add dedicated NVU seed nodes after the network is established.
-        vSeeds.clear();
+        // NVU mainnet bootstrap nodes.
+        //
+        // These hosts are independently operated NVUN nodes and provide
+        // initial peer discovery for new nodes joining the NVU network.
+        vSeeds.emplace_back("node1.nvu.us");
+        vSeeds.emplace_back("node2.nvu.us");
+        vSeeds.emplace_back("node3.nvu.us");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<uint8_t>(1, 0);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<uint8_t>(1, 5);
