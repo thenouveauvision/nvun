@@ -2393,7 +2393,7 @@ bool AppInitMain(Config &config, RPCServer &rpcServer,
         uacomments.push_back(cmt);
     }
     const std::string strSubVersion =
-        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, uacomments);
+        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION_DISPLAY, uacomments);
     if (strSubVersion.size() > MAX_SUBVERSION_LENGTH) {
         return InitError(strprintf(
             _("Total length of network version string (%i) exceeds maximum "

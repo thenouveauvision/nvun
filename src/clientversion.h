@@ -40,9 +40,15 @@
 #include <string>
 #include <vector>
 
-static constexpr int CLIENT_VERSION = 1000000 * CLIENT_VERSION_MAJOR +
-                                      10000 * CLIENT_VERSION_MINOR +
-                                      100 * CLIENT_VERSION_REVISION;
+// Public NVUN product version used for RPC and peer identification.
+static constexpr int CLIENT_VERSION_DISPLAY =
+    1000000 * CLIENT_VERSION_MAJOR +
+    10000 * CLIENT_VERSION_MINOR +
+    100 * CLIENT_VERSION_REVISION;
+
+// Internal compatibility version used for disk, database, and wallet
+// serialization. Preserve the inherited BCHN 29.2.1 compatibility level.
+static constexpr int CLIENT_VERSION = 29020100;
 
 static constexpr int CLIENT_VERSION_ABLA_BLOCKINDEX_DATA = 26010100;
 

@@ -578,7 +578,7 @@ static UniValue getnetworkinfo(const Config &config, const JSONRPCRequest &reque
     LOCK(cs_main);
     UniValue::Object obj;
     obj.reserve(g_connman ? 16 : 10);
-    obj.emplace_back("version", CLIENT_VERSION);
+    obj.emplace_back("version", CLIENT_VERSION_DISPLAY);
     obj.emplace_back("subversion", userAgent(config));
     obj.emplace_back("protocolversion", PROTOCOL_VERSION);
     if (g_connman) {

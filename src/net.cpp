@@ -3006,7 +3006,7 @@ std::string userAgent(const Config &) {
 
     // Size compliance is checked at startup, it is safe to not check it again
     std::string subversion =
-        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, uacomments);
+        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION_DISPLAY, uacomments);
 
     return subversion;
 }
