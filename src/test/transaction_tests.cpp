@@ -941,8 +941,14 @@ BOOST_AUTO_TEST_CASE(test_IsStandard) {
 }
 
 BOOST_AUTO_TEST_CASE(txsize_activation_test) {
-    const auto pparams = CreateChainParams(CBaseChainParams::MAIN);
-    const Consensus::Params &params = pparams->GetConsensus();
+    Consensus::Params params =
+        CreateChainParams(CBaseChainParams::MAIN)->GetConsensus();
+
+    // NVUN activates these inherited consensus rules from genesis. This test
+    // needs distinct activation heights in order to exercise both boundaries.
+    params.magneticAnomalyHeight = 100;
+    params.upgrade9Height = 200;
+
     // ContextualCheckTransaction expects nHeight of next block and MTP for previous block.
     // But the hard-coded chain params are for previous block, hence why we increment the height here.
     const int32_t magneticAnomalyActivationHeight = params.magneticAnomalyHeight + 1;
