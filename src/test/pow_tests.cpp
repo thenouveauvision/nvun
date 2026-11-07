@@ -128,8 +128,22 @@ static CBlockIndexPtr GetBlockIndex(CBlockIndex *pindexPrev, int64_t nTimeInterv
     return block;
 }
 
+class LegacyEDAChainParams : public CChainParams {
+public:
+    explicit LegacyEDAChainParams(const CChainParams &params)
+        : CChainParams(params) {
+        consensus.asertAnchorParams.reset();
+        consensus.axionActivationTime = 2000000000;
+        consensus.daaHeight = 1000000;
+        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowNoRetargeting = false;
+    }
+};
+
 BOOST_AUTO_TEST_CASE(retargeting_test) {
-    DummyConfig config(CBaseChainParams::MAIN);
+    const auto mainParams = CreateChainParams(CBaseChainParams::MAIN);
+    DummyConfig config(
+        std::make_unique<LegacyEDAChainParams>(*mainParams));
 
     std::vector<CBlockIndexPtr> blocks(1);
 
@@ -782,6 +796,8 @@ BOOST_AUTO_TEST_CASE(asert_activation_anchor_test) {
     // 504000-long chain.
     Consensus::Params params = CreateChainParams(CBaseChainParams::MAIN)->GetConsensus();
     params.asertAnchorParams.reset(); // clear hard-coded anchor block so that we may test the activation below
+    params.axionActivationTime = 1605441600;
+    ResetASERTAnchorBlockCache();
     params.daaHeight = 2016;
     const int64_t activationTime =
         gArgs.GetArg("-axionactivationtime", params.axionActivationTime);
