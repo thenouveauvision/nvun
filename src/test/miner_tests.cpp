@@ -31,7 +31,7 @@
 #include <string_view>
 #include <optional>
 
-BOOST_FIXTURE_TEST_SUITE(miner_tests, TestingSetup)
+BOOST_AUTO_TEST_SUITE(miner_tests)
 
 static CFeeRate blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE_PER_KB);
 
@@ -40,40 +40,6 @@ static BlockAssembler AssemblerForTest(const Config &config, const CTxMemPool &m
     options.blockMinFeeRate = blockMinFeeRate;
     return BlockAssembler(config, mempool, options);
 }
-
-static struct {
-    uint8_t extranonce;
-    uint32_t nonce;
-} blockinfo[] = {
-    {4, 0xa4a3e223}, {2, 0x15c32f9e}, {1, 0x0375b547}, {1, 0x7004a8a5},
-    {2, 0xce440296}, {2, 0x52cfe198}, {1, 0x77a72cd0}, {2, 0xbb5d6f84},
-    {2, 0x83f30c2c}, {1, 0x48a73d5b}, {1, 0xef7dcd01}, {2, 0x6809c6c4},
-    {2, 0x0883ab3c}, {1, 0x087bbbe2}, {2, 0x2104a814}, {2, 0xdffb6daa},
-    {1, 0xee8a0a08}, {2, 0xba4237c1}, {1, 0xa70349dc}, {1, 0x344722bb},
-    {3, 0xd6294733}, {2, 0xec9f5c94}, {2, 0xca2fbc28}, {1, 0x6ba4f406},
-    {2, 0x015d4532}, {1, 0x6e119b7c}, {2, 0x43e8f314}, {2, 0x27962f38},
-    {2, 0xb571b51b}, {2, 0xb36bee23}, {2, 0xd17924a8}, {2, 0x6bc212d9},
-    {1, 0x630d4948}, {2, 0x9a4c4ebb}, {2, 0x554be537}, {1, 0xd63ddfc7},
-    {2, 0xa10acc11}, {1, 0x759a8363}, {2, 0xfb73090d}, {1, 0xe82c6a34},
-    {1, 0xe33e92d7}, {3, 0x658ef5cb}, {2, 0xba32ff22}, {5, 0x0227a10c},
-    {1, 0xa9a70155}, {5, 0xd096d809}, {1, 0x37176174}, {1, 0x830b8d0f},
-    {1, 0xc6e3910e}, {2, 0x823f3ca8}, {1, 0x99850849}, {1, 0x7521fb81},
-    {1, 0xaacaabab}, {1, 0xd645a2eb}, {5, 0x7aea1781}, {5, 0x9d6e4b78},
-    {1, 0x4ce90fd8}, {1, 0xabdc832d}, {6, 0x4a34f32a}, {2, 0xf2524c1c},
-    {2, 0x1bbeb08a}, {1, 0xad47f480}, {1, 0x9f026aeb}, {1, 0x15a95049},
-    {2, 0xd1cb95b2}, {2, 0xf84bbda5}, {1, 0x0fa62cd1}, {1, 0xe05f9169},
-    {1, 0x78d194a9}, {5, 0x3e38147b}, {5, 0x737ba0d4}, {1, 0x63378e10},
-    {1, 0x6d5f91cf}, {2, 0x88612eb8}, {2, 0xe9639484}, {1, 0xb7fabc9d},
-    {2, 0x19b01592}, {1, 0x5a90dd31}, {2, 0x5bd7e028}, {2, 0x94d00323},
-    {1, 0xa9b9c01a}, {1, 0x3a40de61}, {1, 0x56e7eec7}, {5, 0x859f7ef6},
-    {1, 0xfd8e5630}, {1, 0x2b0c9f7f}, {1, 0xba700e26}, {1, 0x7170a408},
-    {1, 0x70de86a8}, {1, 0x74d64cd5}, {1, 0x49e738a1}, {2, 0x6910b602},
-    {0, 0x643c565f}, {1, 0x54264b3f}, {2, 0x97ea6396}, {2, 0x55174459},
-    {2, 0x03e8779a}, {1, 0x98f34d8f}, {1, 0xc07b2b07}, {1, 0xdfe29668},
-    {1, 0x3141c7c1}, {1, 0xb3b595f4}, {1, 0x735abf08}, {5, 0x623bfbce},
-    {2, 0xd351e722}, {1, 0xf4ca48c9}, {1, 0x5b19c670}, {1, 0xa164bf0e},
-    {2, 0xbbbeb305}, {2, 0xfe1c810a},
-};
 
 using CBlockIndexPtr = std::unique_ptr<CBlockIndex>;
 
@@ -104,10 +70,18 @@ static void TestPackageSelection(const Config &config,
     // transaction when the high-fee tx has a low fee parent.
     CMutableTransaction tx;
     tx.vin.resize(1);
-    tx.vin[0].scriptSig = CScript() << OP_1;
     tx.vin[0].prevout = COutPoint(txFirst[0]->GetId(), 0);
     tx.vout.resize(1);
     tx.vout[0].nValue = int64_t(5000000000LL - 1000) * SATOSHI;
+
+    // Upgrade 9 requires transactions to be at least 65 bytes.
+    // Use one truthy pushed item so CLEANSTACK remains satisfied.
+    std::vector<uint8_t> packagePadding(1, 1);
+    do {
+        tx.vin[0].scriptSig = CScript() << packagePadding;
+        packagePadding.push_back(1);
+    } while (GetSerializeSize(tx, PROTOCOL_VERSION) <
+             MIN_TX_SIZE_UPGRADE9);
     // This tx has a low fee: 1000 satoshis.
     // Save this txid for later use.
     TxId parentTxId = tx.GetId();
@@ -138,10 +112,18 @@ static void TestPackageSelection(const Config &config,
     std::unique_ptr<CBlockTemplate> pblocktemplate =
         AssemblerForTest(config, g_mempool).CreateNewBlock(scriptPubKey);
 
-
+    // The medium-fee transaction is selected first. The parent and its
+    // high-fee child must both be included, but their final block positions
+    // are determined by CTOR.
+    BOOST_REQUIRE_EQUAL(pblocktemplate->block.vtx.size(), 4UL);
     BOOST_CHECK(pblocktemplate->block.vtx[1]->GetId() == mediumFeeTxId);
-    BOOST_CHECK(pblocktemplate->block.vtx[2]->GetId() == parentTxId);
-    BOOST_CHECK(pblocktemplate->block.vtx[3]->GetId() == highFeeTxId);
+
+    const TxId tx2 = pblocktemplate->block.vtx[2]->GetId();
+    const TxId tx3 = pblocktemplate->block.vtx[3]->GetId();
+
+    BOOST_CHECK(
+        (tx2 == parentTxId && tx3 == highFeeTxId) ||
+        (tx2 == highFeeTxId && tx3 == parentTxId));
 
     // Test that a transactions with ancestor below the block min tx fee doesn't get included
     tx.vin[0].prevout = COutPoint(highFeeTxId, 0);
@@ -169,7 +151,7 @@ static void TestPackageSelection(const Config &config,
 }
 
 // Coinbase scriptSig has to contain the /ABLA/ string
-BOOST_AUTO_TEST_CASE(CheckCoinbase_ABLA) {
+BOOST_FIXTURE_TEST_CASE(CheckCoinbase_ABLA, TestingSetup) {
     GlobalConfig config;
 
     CScript scriptPubKey =
@@ -197,7 +179,7 @@ BOOST_AUTO_TEST_CASE(CheckCoinbase_ABLA) {
 }
 
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
-BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
+BOOST_FIXTURE_TEST_CASE(CreateNewBlock_validity, TestChain100Setup) {
     // Note that by default, these tests run with size accounting enabled.
     GlobalConfig config;
     const CChainParams &chainparams = config.GetChainParams();
@@ -219,39 +201,22 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
                                      .CreateNewBlock(scriptPubKey));
 
     // We can't make transactions until we have inputs.
-    // Therefore, load 100 blocks :)
-    int baseheight = 0;
+    // TestChain100Setup already generated 100 valid REGTEST blocks.
+    // Reuse the first four coinbase transactions from that chain.
+    const int baseheight = 0;
+
     std::vector<CTransactionRef> txFirst;
-    for (size_t i = 0; i < sizeof(blockinfo) / sizeof(*blockinfo); ++i) {
-        // pointer for convenience.
-        CBlock *pblock = &pblocktemplate->block;
-        {
-            LOCK(cs_main);
-            pblock->nVersion = 1;
-            const CBlockIndex * const tip = ::ChainActive().Tip();
-            assert(tip != nullptr);
-            pblock->nTime = tip->GetMedianTimePast() + 1;
-            CMutableTransaction txCoinbase(*pblock->vtx[0]);
-            txCoinbase.nVersion = 1;
-            txCoinbase.vin[0].scriptSig = CScript();
-            txCoinbase.vin[0].scriptSig.push_back(blockinfo[i].extranonce);
-            txCoinbase.vin[0].scriptSig.push_back(::ChainActive().Height());
-            txCoinbase.vout.resize(1);
-            txCoinbase.vout[0].scriptPubKey = CScript();
-            pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
-            if (txFirst.size() == 0) {
-                baseheight = ::ChainActive().Height();
-            }
-            if (txFirst.size() < 4) {
-                txFirst.push_back(pblock->vtx[0]);
-            }
-            pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-            pblock->nNonce = blockinfo[i].nonce;
-        }
-        std::shared_ptr<const CBlock> shared_pblock =
-            std::make_shared<const CBlock>(*pblock);
-        BOOST_CHECK(ProcessNewBlock(config, shared_pblock, true, nullptr));
-        pblock->hashPrevBlock = pblock->GetHash();
+
+    // Create four coinbases with the same empty output script expected by
+    // the transaction tests below.
+    for (int i = 0; i < 4; ++i) {
+        const CBlock block = CreateAndProcessBlock({}, CScript());
+        txFirst.push_back(block.vtx[0]);
+    }
+
+    // Mine enough additional blocks to mature all four coinbase outputs.
+    for (int i = 0; i < COINBASE_MATURITY; ++i) {
+        CreateAndProcessBlock({}, CScript());
     }
 
     LOCK(cs_main);
@@ -268,17 +233,21 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
 
     // block size > limit
     tx.vin.resize(1);
-    tx.vin[0].scriptSig = CScript();
-    // 18 * (520char + DROP) + OP_1 = 9433 bytes
+    tx.vin[0].scriptSig = CScript() << OP_1;
+    tx.vin[0].prevout = COutPoint(txFirst[0]->GetId(), 0);
+
+    // Keep output 0 spendable by the next transaction in the chain.
+    // Put the bulk test data in a separate unspendable output instead of
+    // using non-push opcodes in scriptSig.
+    tx.vout.resize(2);
+    tx.vout[0].nValue = BLOCKSUBSIDY;
+    tx.vout[1].nValue = Amount::zero();
+    tx.vout[1].scriptPubKey = CScript() << OP_RETURN;
+
     std::vector<uint8_t> vchData(520);
     for (unsigned int i = 0; i < 18; ++i) {
-        tx.vin[0].scriptSig << vchData << OP_DROP;
+        tx.vout[1].scriptPubKey << vchData;
     }
-
-    tx.vin[0].scriptSig << OP_1;
-    tx.vin[0].prevout = COutPoint(txFirst[0]->GetId(), 0);
-    tx.vout.resize(1);
-    tx.vout[0].nValue = BLOCKSUBSIDY;
     for (unsigned int i = 0; i < 128; ++i) {
         tx.vout[0].nValue -= LOWFEE;
         const TxId txid = tx.GetId();
@@ -364,6 +333,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
         pcoinsTip->SetBestBlock(next->GetBlockHash());
         next->pprev = prev;
         next->nHeight = prev->nHeight + 1;
+        next->SetAblaStateOpt(prev->GetAblaStateOpt());
         next->BuildSkip();
         ::ChainActive().SetTip(next);
     }
@@ -377,6 +347,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
         pcoinsTip->SetBestBlock(next->GetBlockHash());
         next->pprev = prev;
         next->nHeight = prev->nHeight + 1;
+        next->SetAblaStateOpt(prev->GetAblaStateOpt());
         next->BuildSkip();
         ::ChainActive().SetTip(next);
     }
@@ -435,6 +406,16 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
     tx.vout[0].nValue = BLOCKSUBSIDY - HIGHFEE;
     tx.vout[0].scriptPubKey = CScript() << OP_1;
     tx.nLockTime = 0;
+
+    // Upgrade 9 requires transactions to be at least 65 bytes.
+    // Use one truthy pushed item so CLEANSTACK remains satisfied.
+    std::vector<uint8_t> padding(1, 1);
+    do {
+        tx.vin[0].scriptSig = CScript() << padding;
+        padding.push_back(1);
+    } while (GetSerializeSize(tx, PROTOCOL_VERSION) <
+             MIN_TX_SIZE_UPGRADE9);
+
     txid = tx.GetId();
     g_mempool.addUnchecked(
         entry.Fee(HIGHFEE).Time(GetTime()).SpendsCoinbase(true).FromTx(tx));
@@ -633,7 +614,7 @@ static void CheckBlockMaxSizePercent(Config &config, std::optional<double> optPe
     BOOST_CHECK_EQUAL(ba.GetMaxGeneratedBlockSize(), expected);
 }
 
-BOOST_AUTO_TEST_CASE(BlockAssembler_construction) {
+BOOST_FIXTURE_TEST_CASE(BlockAssembler_construction, TestingSetup) {
     GlobalConfig config;
 
     // check that generated block size can never exceed default max block size
@@ -705,7 +686,7 @@ BOOST_AUTO_TEST_CASE(BlockAssembler_construction) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(TestCBlockTemplateEntry) {
+BOOST_FIXTURE_TEST_CASE(TestCBlockTemplateEntry, TestingSetup) {
     CTransactionRef txRef = MakeTransactionRef();
     CBlockTemplateEntry txEntry(txRef, 1 * SATOSHI, 10);
     BOOST_CHECK_MESSAGE(txEntry.tx == txRef, "Transactions did not match");
