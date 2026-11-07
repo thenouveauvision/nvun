@@ -1578,9 +1578,15 @@ UniValue getblockchaininfo(const Config &config,
         }
     }
 
-    // "upgrade_status" sub-dictionary
-    {
-        const auto &consensus = config.GetChainParams().GetConsensus();
+    // "upgrade_status" sub-dictionary.
+    // NVUN mainnet does not advertise an upgrade when none is scheduled.
+    const auto &upgrade_consensus = config.GetChainParams().GetConsensus();
+    const int64_t upgrade_activation_mtp =
+        gArgs.GetArg("-upgrade2027activationtime",
+                     upgrade_consensus.upgrade2027ActivationTime);
+
+    if (upgrade_activation_mtp > 0) {
+        const auto &consensus = upgrade_consensus;
         struct UpgradeInfo {
             const std::string name;
             ActivationBlockTracker &tracker;
@@ -1596,7 +1602,7 @@ UniValue getblockchaininfo(const Config &config,
         const auto &isUpgradeActivatedFunc = info.tracker.GetPredicate();
         CHECK_NONFATAL(isUpgradeActivatedFunc != nullptr);
 
-        const int64_t activation_mtp = gArgs.GetArg(info.cliArg, info.cliArgDefault);
+        const int64_t activation_mtp = upgrade_activation_mtp;
         const int64_t expiry_time = software_outdated::nTime;
         const bool expiry_enabled = expiry_time > 0;
         const bool mempool_activated = isUpgradeActivatedFunc(consensus, tip);
