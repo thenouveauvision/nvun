@@ -1,4 +1,5 @@
 // Copyright (c) 2018-2026 The Bitcoin developers
+// Copyright (c) 2026 James Cole
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 

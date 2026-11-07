@@ -223,5 +223,7 @@ Project: Nouveau-Vision
 Currency: Nouveau-Vision Unit
 Ticker: NVU
 Node: NVUN
+Project creator and lead developer: James Cole
+Copyright (c) 2026 James Cole / Nouveau-Vision
 Website: https://nvu.us
 Source: https://github.com/thenouveauvision/nvun
